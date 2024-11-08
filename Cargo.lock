@@ -348,6 +348,8 @@ dependencies = [
  "serde_json",
  "stackable-operator",
  "sysinfo",
+ "tracing",
+ "tracing-subscriber",
  "users",
 ]
 
