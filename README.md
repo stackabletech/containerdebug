@@ -24,7 +24,7 @@ It currently prints:
 
 Here is an example of what it looks like on my virtual machine:
 
-> 2025-02-03T11:37:47.420479Z  INFO containerdebug: stackable_operator::utils::logging: Starting 
+> 2025-02-03T11:37:47.420479Z  INFO containerdebug: stackable_operator::utils::logging: Starting
 > 2025-02-03T11:37:47.420521Z  INFO containerdebug: stackable_operator::utils::logging: This is version 0.1.1 (Git information: 0.1.1-1-gcf51ae1), built for x86_64-unknown-linux-gnu by rustc 1.84.1 (e71f9a9a9 2025-01-27) at Tue, 1 Jan 1980 00:00:00 +0000
 > 2025-02-03T11:37:47.420544Z  INFO containerdebug:SystemInformation::init: containerdebug::system_information: initializing
 > 2025-02-03T11:37:47.426065Z  INFO containerdebug:SystemInformation::init: containerdebug::system_information: init finished
@@ -60,16 +60,16 @@ Here is an example of what it looks like on my virtual machine:
 > 2025-02-03T11:37:47.443628Z  INFO containerdebug:SystemInformation::collect:SystemNetworkInfo::collect: containerdebug::system_information::network: performed forward DNS lookup for hostname hostname="nixos2.local." ips=[192.168.122.138, 172.18.0.1, 172.17.0.1]
 > 2025-02-03T11:37:47.443837Z  INFO containerdebug:SystemInformation::collect: containerdebug::system_information: Data collection finished
 
-# Log output
+## Log output
 
 The log-style output above is written to stdout. It can also be output to files by setting the environment variable `CONTAINERDEBUG_LOG_DIRECTORY=/path/to/logs/directory`.
 
 This file output will be output as _JSON-formatted logs_, in order to ease ingestion into a log aggregation system (such as [Vector](https://vector.dev/)). These files
 will also automatically be rotated over time.
 
-# Data output
+## Data output
 
-The containerdebug tool can write its collected data into a JSON dump, by setting the `--output=/path/to/dump.json` flag. 
+The containerdebug tool can write its collected data into a JSON dump, by setting the `--output=/path/to/dump.json` flag.
 
 This is intended to be queried with tools like [jq](https://jqlang.org/). However, note that the output format is currently not stable, and may change over time.
 
@@ -183,7 +183,7 @@ For example:
 }
 ```
 
-# Continuous mode
+## Continuous mode
 
 If given the `--loop` flag, containerdebug will stay in the background and run on a fixed interval. By default it will run every 30 minutes, but a custom
 interval can also be set (e.g. `--loop=30s`).
