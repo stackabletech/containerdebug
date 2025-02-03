@@ -62,16 +62,23 @@ Here is an example of what it looks like on my virtual machine:
 
 ## Log output
 
-The log-style output above is written to stdout. It can also be output to files by setting the environment variable `CONTAINERDEBUG_LOG_DIRECTORY=/path/to/logs/directory`.
+The log-style output above is written to stdout.
+It can also be output to files by setting the environment variable
+`CONTAINERDEBUG_LOG_DIRECTORY=/path/to/logs/directory`.
 
-This file output will be output as _JSON-formatted logs_, in order to ease ingestion into a log aggregation system (such as [Vector](https://vector.dev/)). These files
-will also automatically be rotated over time.
+This file output will be output as _JSON-formatted logs_, in order to
+ease ingestion into a log aggregation system (such as
+[Vector](https://vector.dev/)).
+These log files will also automatically be rotated over time.
 
 ## Data output
 
-The containerdebug tool can write its collected data into a JSON dump, by setting the `--output=/path/to/dump.json` flag.
+The containerdebug tool can write its collected data into a JSON dump,
+by setting the `--output=/path/to/dump.json` flag.
 
-This is intended to be queried with tools like [jq](https://jqlang.org/). However, note that the output format is currently not stable, and may change over time.
+This is intended to be queried with tools like [jq](https://jqlang.org/).
+However, note that the output format is currently not stable, and may
+change over time.
 
 For example:
 
@@ -185,5 +192,6 @@ For example:
 
 ## Continuous mode
 
-If given the `--loop` flag, containerdebug will stay in the background and run on a fixed interval. By default it will run every 30 minutes, but a custom
-interval can also be set (e.g. `--loop=30s`).
+If given the `--loop` flag, containerdebug will stay in the background and
+re-run on a fixed interval. The default interval is `30m` (every 30 minutes), but
+it can be customized as desired (e.g. `--loop=30s`).
