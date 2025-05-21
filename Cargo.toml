@@ -1,7 +1,7 @@
 [package]
 name = "containerdebug"
 version = "0.1.1"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
@@ -16,4 +16,4 @@ sysinfo = { version = "0.35.1", features = ["serde"] }
 tracing = "0.1"
 
 [build-dependencies]
-built = { version = "0.7", features = ["chrono", "git2"] }
+built = { version = "0.8", features = ["chrono", "git2"] }
