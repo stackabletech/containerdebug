@@ -6,6 +6,8 @@ pub struct Resources {
     pub cpu_count: usize,
     pub physical_core_count: Option<usize>,
 
+    pub open_files_limit: Option<usize>,
+
     pub total_memory: u64,
     pub free_memory: u64,
     pub available_memory: u64,
@@ -33,11 +35,17 @@ impl Resources {
         );
 
         let cpu_count = sys.cpus().len();
-        let physical_core_count = sys.physical_core_count();
+        let physical_core_count = System::physical_core_count();
         tracing::info!(
             cpus.physical = cpu_count,
             cpus.cores.physical = physical_core_count,
             "cpus"
+        );
+
+        let open_files_limit = System::open_files_limit();
+        tracing::info!(
+            open_files.limit = open_files_limit,
+            "open files"
         );
 
         let total_memory = sys.total_memory();
@@ -84,6 +92,8 @@ impl Resources {
         Self {
             cpu_count,
             physical_core_count,
+
+            open_files_limit,
 
             total_memory,
             free_memory,

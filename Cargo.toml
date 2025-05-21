@@ -12,7 +12,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 snafu = "0.8"
 stackable-operator = { git = "https://github.com/stackabletech/operator-rs", tag = "stackable-operator-0.86.0" }
-sysinfo = { version = "0.33", features = ["serde"] }
+sysinfo = { version = "0.35.1", features = ["serde"] }
 tracing = "0.1"
 
 [build-dependencies]
