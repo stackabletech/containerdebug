@@ -16,4 +16,4 @@ sysinfo = { version = "0.33", features = ["serde"] }
 tracing = "0.1"
 
 [build-dependencies]
-built = { version = "0.7", features = ["chrono", "git2"] }
+built = { version = "0.8", features = ["chrono", "git2"] }
