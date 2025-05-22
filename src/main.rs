@@ -27,6 +27,9 @@ struct Opts {
     /// Write collected information to OUTPUT as JSON
     #[clap(long, short = 'o')]
     output: Option<PathBuf>,
+    
+    #[clap(flatten)]
+    pub telemetry_arguments: TelemetryOptions,
 }
 
 mod built_info {
@@ -36,7 +39,9 @@ mod built_info {
 fn main() {
     let opts = Opts::parse();
 
-    let _ = Tracing::pre_configured(APP_NAME, TelemetryOptions::default()).init();
+    let _trace_guard = Tracing::pre_configured(APP_NAME, opts.telemetry_arguments)
+        .init()
+        .unwrap();
 
     // Wrap *all* output in a span, to separate it from main app output.
     let _span = tracing::error_span!("containerdebug").entered();
