@@ -1,7 +1,7 @@
 mod error;
 mod system_information;
 
-use clap::{Parser, crate_description, crate_version};
+use clap::Parser;
 use stackable_operator::telemetry::Tracing;
 use std::path::PathBuf;
 
@@ -45,13 +45,14 @@ fn main() {
 
     let init_span = tracing::error_span!("containerdebug init").entered();
 
-    stackable_operator::utils::print_startup_string(
-        crate_description!(),
-        crate_version!(),
-        built_info::GIT_VERSION,
-        built_info::TARGET,
-        built_info::BUILT_TIME_UTC,
-        built_info::RUSTC_VERSION,
+    tracing::info!(
+        built_info.pkg_version = built_info::PKG_VERSION,
+        built_info.git_version = built_info::GIT_VERSION,
+        built_info.target = built_info::TARGET,
+        built_info.built_time_utc = built_info::BUILT_TIME_UTC,
+        built_info.rustc_version = built_info::RUSTC_VERSION,
+        "Starting {name}",
+        name = built_info::PKG_NAME
     );
 
     let mut collect_ctx = SystemInformation::init();
