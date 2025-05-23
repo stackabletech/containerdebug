@@ -43,7 +43,7 @@ impl Resources {
         );
 
         let open_files_limit = System::open_files_limit();
-        tracing::info!(open_files.limit = open_files_limit, "open files");
+        tracing::info!(open_files.limit = open_files_limit, "open files limit");
 
         let total_memory = sys.total_memory();
         let free_memory = sys.free_memory();
