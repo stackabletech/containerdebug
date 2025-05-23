@@ -43,8 +43,7 @@ fn main() {
         .init()
         .unwrap();
 
-    // Wrap *all* output in a span, to separate it from main app output.
-    let _span = tracing::error_span!("containerdebug").entered();
+    let init_span = tracing::error_span!("containerdebug init").entered();
 
     stackable_operator::utils::print_startup_string(
         crate_description!(),
@@ -58,7 +57,12 @@ fn main() {
     let mut collect_ctx = SystemInformation::init();
 
     let mut next_run = Instant::now();
+
+    drop(init_span);
     loop {
+        // Wrap *all* output in a span, to separate it from main app output.
+        let _span = tracing::error_span!("containerdebug run").entered();
+
         let next_run_sleep = next_run.saturating_duration_since(Instant::now());
         if !next_run_sleep.is_zero() {
             tracing::info!(?next_run, "scheduling next run...");
