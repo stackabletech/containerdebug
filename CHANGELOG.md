@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Dependency bumps. This includes switching to async code (using `tokio`), as `hickory-resolver` 0.25 removed the synchronous APIs ([#XX]).
+
 ## [0.2.0] - 2025-05-26
 
 ### Changed

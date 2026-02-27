@@ -1,3 +1,8 @@
+# This file is the source of truth for all our repos!
+# This includes repos not templated by operator-templating, please copy/paste the file for this repos.
+
+# TIP: Use "cargo deny check" to check if everything is fine
+
 [graph]
 targets = [
     { triple = "x86_64-unknown-linux-gnu" },
@@ -10,15 +15,29 @@ targets = [
 [advisories]
 yanked = "deny"
 ignore = [
-    # https://rustsec.org/advisories/RUSTSEC-2024-0384
-    # "instant" is unmaintained
+    # https://rustsec.org/advisories/RUSTSEC-2023-0071
+    # "rsa" crate: Marvin Attack: potential key recovery through timing sidechannel
     #
-    # The upstream "kube" crate also silenced this in https://github.com/kube-rs/kube/commit/4f1e889f265da8f19f03f60683569cae1a154fda
-    # They/we are actively working on migrating kube from backoff to backon, which removes the transitive dependency on
-    # instant, in https://github.com/kube-rs/kube/pull/1652.
+    # No patch is yet available, however work is underway to migrate to a fully constant-time implementation
+    # So we need to accept this, as of SDP 25.3 we are not using the rsa crate to create certificates used in production
+    # setups.
     #
-    # TODO: Remove after https://github.com/kube-rs/kube/pull/1652 is merged
-    "RUSTSEC-2024-0384",
+    # https://github.com/RustCrypto/RSA/issues/19 is the tracking issue
+    "RUSTSEC-2023-0071",
+
+    # https://rustsec.org/advisories/RUSTSEC-2024-0436
+    # The "paste" crate is no longer maintained because the owner states that the implementation is
+    # finished. There are at least two (forked) alternatives which state to be maintained. They'd
+    # need to be vetted before a potential switch. Additionally, they'd need to be in a maintained
+    # state for a couple of years to provide any benefit over using "paste".
+    #
+    # This crate is only used in a single place in the xtask package inside the declarative
+    # "write_crd" macro. The impact of vulnerabilities, if any, should be fairly minimal.
+    #
+    # See thread: https://users.rust-lang.org/t/paste-alternatives/126787/4
+    #
+    # This can only be removed again if we decide to use a different crate.
+    "RUSTSEC-2024-0436",
 ]
 
 [bans]
@@ -62,6 +81,9 @@ license-files = [
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
+allow-git = [
+    "https://github.com/kube-rs/kube-rs",
+]
 
 [sources.allow-org]
 github = ["stackabletech"]
