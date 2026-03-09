@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Dependency bumps. This includes switching to async code (using `tokio`), as `hickory-resolver` 0.25 removed the synchronous APIs ([#XX]).
+- Dependency bumps. This includes switching to async code (using `tokio`), as `hickory-resolver` 0.25 removed the synchronous APIs ([#52]).
+
+[#52]: https://github.com/stackabletech/containerdebug/pull/52
 
 ## [0.2.0] - 2025-05-26
 
