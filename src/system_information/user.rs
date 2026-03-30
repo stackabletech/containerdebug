@@ -53,7 +53,7 @@ impl User {
         tracing::info!(
             user.name,
             user.uid = user.uid.as_ref().map(|uid| format!("{uid:?}")),
-            user.gid = user.uid.as_ref().map(|gid| format!("{gid:?}")),
+            user.gid = user.gid.as_ref().map(|gid| format!("{gid:?}")),
             "current user"
         );
         Ok(user)
