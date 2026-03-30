@@ -8,7 +8,7 @@ use crate::error::SysinfoError;
 pub enum Error {
     #[snafu(display("failed to get pid of the current process"))]
     GetCurrentPid { source: SysinfoError },
-    #[snafu(display("current pid {pid} could not be resolved to a proess"))]
+    #[snafu(display("current pid {pid} could not be resolved to a process"))]
     ResolveCurrentProcess { pid: Pid },
 }
 type Result<T, E = Error> = std::result::Result<T, E>;
