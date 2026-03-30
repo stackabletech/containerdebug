@@ -2634,7 +2634,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stackable-shared"
 version = "0.1.0"
-source = "git+https://github.com/stackabletech/operator-rs?tag=stackable-operator-0.107.0#a16cafb151202948e79925a58662b14b8b004cd7"
+source = "git+https://github.com/stackabletech/operator-rs?tag=stackable-telemetry-0.6.3#380e4fbf5ea920fef2d12c63d2c2165ac0fe2193"
 dependencies = [
  "k8s-openapi",
  "kube",
@@ -2648,8 +2648,8 @@ dependencies = [
 
 [[package]]
 name = "stackable-telemetry"
-version = "0.6.2"
-source = "git+https://github.com/stackabletech/operator-rs?tag=stackable-operator-0.107.0#a16cafb151202948e79925a58662b14b8b004cd7"
+version = "0.6.3"
+source = "git+https://github.com/stackabletech/operator-rs?tag=stackable-telemetry-0.6.3#380e4fbf5ea920fef2d12c63d2c2165ac0fe2193"
 dependencies = [
  "axum",
  "clap",
