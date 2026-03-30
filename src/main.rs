@@ -68,7 +68,7 @@ async fn main() {
         if !next_run_sleep.is_zero() {
             tracing::info!(?next_run, "scheduling next run...");
         }
-        std::thread::sleep(next_run_sleep);
+        tokio::time::sleep(next_run_sleep).await;
 
         let system_information = SystemInformation::collect(&mut collect_ctx).await;
 
