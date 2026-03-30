@@ -5,7 +5,7 @@ use local_ip_address::list_afinet_netifas;
 use serde::Serialize;
 use snafu::{ResultExt, Snafu};
 use std::{
-    collections::{BTreeSet, HashMap},
+    collections::{BTreeMap, BTreeSet},
     net::IpAddr,
     sync::LazyLock,
     time::Duration,
@@ -42,16 +42,16 @@ static GLOBAL_DNS_RESOLVER: LazyLock<Option<TokioResolver>> = LazyLock::new(|| {
 /// and the results of reverse and forward DNS lookups.
 #[derive(Debug, Serialize)]
 pub struct SystemNetworkInfo {
-    pub interfaces: HashMap<String, Vec<IpAddr>>,
-    pub reverse_lookups: HashMap<IpAddr, Vec<String>>,
-    pub forward_lookups: HashMap<String, Vec<IpAddr>>,
+    pub interfaces: BTreeMap<String, Vec<IpAddr>>,
+    pub reverse_lookups: BTreeMap<IpAddr, Vec<String>>,
+    pub forward_lookups: BTreeMap<String, Vec<IpAddr>>,
 }
 
 impl SystemNetworkInfo {
     #[tracing::instrument(name = "SystemNetworkInfo::collect")]
     pub async fn collect() -> Result<SystemNetworkInfo, Error> {
         let netifs = list_afinet_netifas().context(ListInterfacesSnafu)?;
-        let mut interfaces = HashMap::new();
+        let mut interfaces = BTreeMap::new();
 
         // Iterate over the network interfaces and group them by name
         // An interface may appear multiple times if it has multiple IP addresses (e.g. IPv4 and IPv6)
@@ -73,8 +73,8 @@ impl SystemNetworkInfo {
         let Some(resolver) = GLOBAL_DNS_RESOLVER.as_ref() else {
             return Ok(SystemNetworkInfo {
                 interfaces,
-                reverse_lookups: HashMap::new(),
-                forward_lookups: HashMap::new(),
+                reverse_lookups: BTreeMap::new(),
+                forward_lookups: BTreeMap::new(),
             });
         };
 
@@ -82,7 +82,7 @@ impl SystemNetworkInfo {
         for ip in ips {
             reverse_lookup_tasks.spawn(async move { (ip, resolver.reverse_lookup(ip).await) });
         }
-        let reverse_lookups: HashMap<IpAddr, Vec<String>> = reverse_lookup_tasks
+        let reverse_lookups: BTreeMap<IpAddr, Vec<String>> = reverse_lookup_tasks
             .join_all()
             .await
             .into_iter()
@@ -114,7 +114,7 @@ impl SystemNetworkInfo {
             forward_lookup_tasks
                 .spawn(async move { (hostname.clone(), resolver.lookup_ip(hostname).await) });
         }
-        let forward_lookups: HashMap<String, Vec<IpAddr>> = forward_lookup_tasks
+        let forward_lookups: BTreeMap<String, Vec<IpAddr>> = forward_lookup_tasks
             .join_all()
             .await
             .into_iter()
