@@ -3,6 +3,7 @@ use hickory_resolver::{
 };
 use local_ip_address::list_afinet_netifas;
 use serde::Serialize;
+use snafu::{ResultExt, Snafu};
 use std::{
     collections::{BTreeSet, HashMap},
     net::IpAddr,
@@ -10,6 +11,12 @@ use std::{
     time::Duration,
 };
 use tokio::task::JoinSet;
+
+#[derive(Debug, Snafu)]
+pub enum Error {
+    #[snafu(display("failed to list network interfaces"))]
+    ListInterfaces { source: local_ip_address::Error },
+}
 
 static GLOBAL_DNS_RESOLVER: LazyLock<Option<TokioResolver>> = LazyLock::new(|| {
     let (resolver_config, mut resolver_opts) = match read_system_conf() {
@@ -42,44 +49,33 @@ pub struct SystemNetworkInfo {
 
 impl SystemNetworkInfo {
     #[tracing::instrument(name = "SystemNetworkInfo::collect")]
-    pub async fn collect() -> SystemNetworkInfo {
-        let interfaces = match list_afinet_netifas() {
-            Ok(netifs) => {
-                let mut interface_map = std::collections::HashMap::new();
+    pub async fn collect() -> Result<SystemNetworkInfo, Error> {
+        let netifs = list_afinet_netifas().context(ListInterfacesSnafu)?;
+        let mut interfaces = HashMap::new();
 
-                // Iterate over the network interfaces and group them by name
-                // An interface may appear multiple times if it has multiple IP addresses (e.g. IPv4 and IPv6)
-                for (name, ip_addr) in netifs {
-                    tracing::info!(
-                        network.interface.name = name,
-                        network.interface.address = %ip_addr,
-                        "found network interface"
-                    );
-                    interface_map
-                        .entry(name)
-                        .or_insert_with(Vec::new)
-                        .push(ip_addr);
-                }
-                interface_map
-            }
-            Err(error) => {
-                tracing::error!(
-                    error = &error as &dyn std::error::Error,
-                    "failed to list network interfaces"
-                );
-                HashMap::new()
-            }
-        };
+        // Iterate over the network interfaces and group them by name
+        // An interface may appear multiple times if it has multiple IP addresses (e.g. IPv4 and IPv6)
+        for (name, ip_addr) in netifs {
+            tracing::info!(
+                network.interface.name = name,
+                network.interface.address = %ip_addr,
+                "found network interface"
+            );
+            interfaces
+                .entry(name)
+                .or_insert_with(Vec::new)
+                .push(ip_addr);
+        }
 
         let ips: BTreeSet<IpAddr> = interfaces.values().flatten().copied().collect();
         tracing::info!(network.addresses.ip = ?ips, "ip addresses");
 
         let Some(resolver) = GLOBAL_DNS_RESOLVER.as_ref() else {
-            return SystemNetworkInfo {
+            return Ok(SystemNetworkInfo {
                 interfaces,
                 reverse_lookups: HashMap::new(),
                 forward_lookups: HashMap::new(),
-            };
+            });
         };
 
         let mut reverse_lookup_tasks = JoinSet::new();
@@ -139,10 +135,10 @@ impl SystemNetworkInfo {
             })
             .collect();
 
-        SystemNetworkInfo {
+        Ok(SystemNetworkInfo {
             interfaces,
             reverse_lookups,
             forward_lookups,
-        }
+        })
     }
 }
