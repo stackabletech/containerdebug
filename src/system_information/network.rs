@@ -11,14 +11,24 @@ use std::{
 };
 use tokio::task::JoinSet;
 
-static GLOBAL_DNS_RESOLVER: LazyLock<TokioResolver> = LazyLock::new(|| {
-    let (resolver_config, mut resolver_opts) =
-        read_system_conf().expect("failed to read system resolv config");
+static GLOBAL_DNS_RESOLVER: LazyLock<Option<TokioResolver>> = LazyLock::new(|| {
+    let (resolver_config, mut resolver_opts) = match read_system_conf() {
+        Ok(conf) => conf,
+        Err(err) => {
+            tracing::error!(
+                error = &err as &dyn std::error::Error,
+                "failed to read system DNS config, DNS lookups will be skipped"
+            );
+            return None;
+        }
+    };
     resolver_opts.timeout = Duration::from_secs(5);
 
-    TokioResolver::builder_with_config(resolver_config, TokioConnectionProvider::default())
-        .with_options(resolver_opts)
-        .build()
+    Some(
+        TokioResolver::builder_with_config(resolver_config, TokioConnectionProvider::default())
+            .with_options(resolver_opts)
+            .build(),
+    )
 });
 
 /// Captures all system network information, including network interfaces,
@@ -64,12 +74,19 @@ impl SystemNetworkInfo {
         let ips: BTreeSet<IpAddr> = interfaces.values().flatten().copied().collect();
         tracing::info!(network.addresses.ip = ?ips, "ip addresses");
 
-        let mut reverse_lookups = JoinSet::new();
+        let Some(resolver) = GLOBAL_DNS_RESOLVER.as_ref() else {
+            return SystemNetworkInfo {
+                interfaces,
+                reverse_lookups: HashMap::new(),
+                forward_lookups: HashMap::new(),
+            };
+        };
+
+        let mut reverse_lookup_tasks = JoinSet::new();
         for ip in ips {
-            reverse_lookups
-                .spawn(async move { (ip, GLOBAL_DNS_RESOLVER.reverse_lookup(ip).await) });
+            reverse_lookup_tasks.spawn(async move { (ip, resolver.reverse_lookup(ip).await) });
         }
-        let reverse_lookups: HashMap<IpAddr, Vec<String>> = reverse_lookups
+        let reverse_lookups: HashMap<IpAddr, Vec<String>> = reverse_lookup_tasks
             .join_all()
             .await
             .into_iter()
@@ -96,16 +113,12 @@ impl SystemNetworkInfo {
         let hostname_set: BTreeSet<String> = reverse_lookups.values().flatten().cloned().collect();
         tracing::info!(network.addresses.hostname = ?hostname_set, "hostnames");
 
-        let mut forward_lookups = JoinSet::new();
+        let mut forward_lookup_tasks = JoinSet::new();
         for hostname in hostname_set {
-            forward_lookups.spawn(async move {
-                (
-                    hostname.clone(),
-                    GLOBAL_DNS_RESOLVER.lookup_ip(hostname).await,
-                )
-            });
+            forward_lookup_tasks
+                .spawn(async move { (hostname.clone(), resolver.lookup_ip(hostname).await) });
         }
-        let forward_lookups: HashMap<String, Vec<IpAddr>> = forward_lookups
+        let forward_lookups: HashMap<String, Vec<IpAddr>> = forward_lookup_tasks
             .join_all()
             .await
             .into_iter()
