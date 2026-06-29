@@ -1,5 +1,9 @@
 # Container Support Helper
 
+> [!NOTE]
+> The code of this repository was moved to [operator-rs](https://github.com/stackabletech/operator-rs) in [#1233](https://github.com/stackabletech/operator-rs/pull/1233).
+> It is now archived.
+
 This is a tool meant to make the life of a support engineer easier when working
 with docker containers.
 
